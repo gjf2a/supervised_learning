@@ -7,4 +7,4 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-hash_histogram = {git = "https://github.com/gjf2a/hash_histogram"}
+hash_histogram = "0.5.1"
