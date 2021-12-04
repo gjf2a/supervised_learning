@@ -1,23 +1,24 @@
 use hash_histogram::HashHistogram;
 use std::{fmt, io};
-use std::fmt::Formatter;
+use std::fmt::{Display, Formatter};
 use std::collections::HashSet;
+use std::hash::Hash;
 use std::io::Write;
 
-pub struct ConfusionMatrix {
-    label_2_right: HashHistogram<u8>,
-    label_2_wrong: HashHistogram<u8>,
+pub struct ConfusionMatrix<L: Hash+Clone+Eq+Ord> {
+    label_2_right: HashHistogram<L>,
+    label_2_wrong: HashHistogram<L>,
 }
 
-impl ConfusionMatrix {
-    pub fn new() -> ConfusionMatrix {
+impl <L: Hash+Clone+Eq+Ord> ConfusionMatrix<L> {
+    pub fn new() -> ConfusionMatrix<L> {
         ConfusionMatrix {
             label_2_right: HashHistogram::new(),
             label_2_wrong: HashHistogram::new(),
         }
     }
 
-    pub fn record(&mut self, img_label: u8, classification: u8) {
+    pub fn record(&mut self, img_label: L, classification: L) {
         if classification == img_label {
             self.label_2_right.bump(&img_label);
         } else {
@@ -25,10 +26,10 @@ impl ConfusionMatrix {
         }
     }
 
-    pub fn all_labels(&self) -> HashSet<u8> {
+    pub fn all_labels(&self) -> HashSet<L> {
         self.label_2_wrong.all_labels()
             .union(&self.label_2_right.all_labels())
-            .copied()
+            .cloned()
             .collect()
     }
 
@@ -39,9 +40,9 @@ impl ConfusionMatrix {
     }
 }
 
-impl fmt::Display for ConfusionMatrix {
+impl <L: Display+Hash+Clone+Eq+Ord> fmt::Display for ConfusionMatrix<L> {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        let mut ordered_labels: Vec<u8> = self.all_labels().iter().copied().collect();
+        let mut ordered_labels: Vec<L> = self.all_labels().iter().cloned().collect();
         ordered_labels.sort_unstable();
         for label in ordered_labels {
             writeln!(f, "{}: {} correct, {} incorrect", label,
@@ -52,17 +53,17 @@ impl fmt::Display for ConfusionMatrix {
     }
 }
 
-pub trait Classifier<I> {
-    fn train(&mut self, training_images: &Vec<(u8,I)>);
+pub trait Classifier<I,L:Hash+Clone+Eq+Ord> {
+    fn train(&mut self, training_images: &Vec<(L,I)>);
 
-    fn classify(&self, example: &I) -> u8;
+    fn classify(&self, example: &I) -> L;
 
-    fn test(&self, testing_images: &[(u8,I)]) -> ConfusionMatrix {
+    fn test(&self, testing_images: &[(L,I)]) -> ConfusionMatrix<L> {
         let mut result = ConfusionMatrix::new();
         let mut count = 0;
         let twentieth = testing_images.len() / 20;
         for test_img in testing_images {
-            result.record(test_img.0, self.classify(&test_img.1));
+            result.record(test_img.0.clone(), self.classify(&test_img.1));
             count += 1;
             if count % twentieth == 0 {
                 print!("{}%; ", count * 5 / twentieth);
