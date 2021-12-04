@@ -1,16 +1,16 @@
 use hash_histogram::HashHistogram;
 use std::{fmt, io};
-use std::fmt::{Display, Formatter};
+use std::fmt::{Debug, Display, Formatter};
 use std::collections::HashSet;
 use std::hash::Hash;
 use std::io::Write;
 
-pub struct ConfusionMatrix<L: Hash+Clone+Eq+Ord> {
+pub struct ConfusionMatrix<L: Debug+Hash+Clone+Eq+Ord> {
     label_2_right: HashHistogram<L>,
     label_2_wrong: HashHistogram<L>,
 }
 
-impl <L: Hash+Clone+Eq+Ord> ConfusionMatrix<L> {
+impl <L: Debug+Hash+Clone+Eq+Ord> ConfusionMatrix<L> {
     pub fn new() -> ConfusionMatrix<L> {
         ConfusionMatrix {
             label_2_right: HashHistogram::new(),
@@ -40,7 +40,7 @@ impl <L: Hash+Clone+Eq+Ord> ConfusionMatrix<L> {
     }
 }
 
-impl <L: Display+Hash+Clone+Eq+Ord> fmt::Display for ConfusionMatrix<L> {
+impl <L: Debug+Display+Hash+Clone+Eq+Ord> fmt::Display for ConfusionMatrix<L> {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         let mut ordered_labels: Vec<L> = self.all_labels().iter().cloned().collect();
         ordered_labels.sort_unstable();
@@ -53,7 +53,7 @@ impl <L: Display+Hash+Clone+Eq+Ord> fmt::Display for ConfusionMatrix<L> {
     }
 }
 
-pub trait Classifier<I,L:Hash+Clone+Eq+Ord> {
+pub trait Classifier<I,L:Debug+Hash+Clone+Eq+Ord> {
     fn train(&mut self, training_images: &Vec<(L,I)>);
 
     fn classify(&self, example: &I) -> L;
