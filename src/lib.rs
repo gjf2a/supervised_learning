@@ -19,9 +19,9 @@ impl ConfusionMatrix {
 
     pub fn record(&mut self, img_label: u8, classification: u8) {
         if classification == img_label {
-            self.label_2_right.bump(img_label);
+            self.label_2_right.bump(&img_label);
         } else {
-            self.label_2_wrong.bump(img_label);
+            self.label_2_wrong.bump(&img_label);
         }
     }
 
@@ -44,7 +44,9 @@ impl fmt::Display for ConfusionMatrix {
         let mut ordered_labels: Vec<u8> = self.all_labels().iter().copied().collect();
         ordered_labels.sort_unstable();
         for label in ordered_labels {
-            writeln!(f, "{}: {} correct, {} incorrect", label, self.label_2_right.get(label), self.label_2_wrong.get(label))?;
+            writeln!(f, "{}: {} correct, {} incorrect", label,
+                     self.label_2_right.count(&label),
+                     self.label_2_wrong.count(&label))?;
         }
         Ok(())
     }

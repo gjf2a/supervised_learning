@@ -1,11 +1,10 @@
 [package]
 name = "supervised_learning"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["gjf2a <ferrer@hendrix.edu>"]
-edition = "2018"
+edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-
 hash_histogram = {git = "https://github.com/gjf2a/hash_histogram"}
